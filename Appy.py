@@ -92,7 +92,7 @@ with tab3:
 # Exemplo de dados
 st.markdown("""game_id,server,receiver,server_points,receiver_points,server_aces,server_double_faults,server_1st_serve_pct,game_winner,break_occurred
 1,Nadal,Djokovic,4,2,1,0,68,Nadal,0
-2,Djokovic,Nadal,2,4,2,1,62,Nadal,1''')
+2,Djokovic,Nadal,2,4,2,1,62,Nadal,1""")
 ---
 
 ### 📌 Exemplo de dados válidos:
