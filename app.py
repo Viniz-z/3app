@@ -5,9 +5,9 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import accuracy_score, classification_report
 import matplotlib.pyplot as plt
 
-# Título e descrição
-st.title("Árvore de Classificação de Clientes")
-st.write("Este é um exemplo simples de classificação usando árvore de decisão.")
+# Título
+st.title("Comparação de Árvores de Decisão")
+st.write("Vamos comparar o desempenho de dois modelos de árvore de decisão com diferentes configurações.")
 
 # Dados de exemplo
 data = {
@@ -18,49 +18,60 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# Mostrar os dados no app
 with st.expander("Visualizar dados de exemplo"):
     st.dataframe(df)
 
-# Separar X e y
+# Features e target
 X = df[["Idade", "Gênero", "Renda"]]
 y = df["Categoria"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
-# Dividir em treino/teste
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Sidebar para hiperparâmetros
+st.sidebar.title("Configurações dos Modelos")
 
-# Treinar o modelo
-model = DecisionTreeClassifier(random_state=42)
-model.fit(X_train, y_train)
+st.sidebar.subheader("Modelo 1")
+max_depth1 = st.sidebar.slider("Profundidade máxima (Modelo 1)", 1, 10, 3)
 
-# Avaliar
-y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
-report = classification_report(y_test, y_pred, output_dict=False)
+st.sidebar.subheader("Modelo 2")
+max_depth2 = st.sidebar.slider("Profundidade máxima (Modelo 2)", 1, 10, 5)
 
-# Mostrar métricas
-st.subheader("Desempenho do Modelo")
-st.write(f"**Acurácia:** {accuracy:.2f}")
-st.text("Relatório de Classificação:")
-st.text(report)
+# Criar duas colunas
+col1, col2 = st.columns(2)
 
-# Mostrar visualização da árvore
-st.subheader("Visualização da Árvore de Decisão")
-fig, ax = plt.subplots(figsize=(12, 6))
-plot_tree(model, feature_names=X.columns, class_names=["A", "B", "C", "D"], filled=True)
-st.pyplot(fig)
+# ===== Modelo 1 =====
+with col1:
+    st.subheader("Modelo 1")
+    model1 = DecisionTreeClassifier(max_depth=max_depth1, random_state=42)
+    model1.fit(X_train, y_train)
+    y_pred1 = model1.predict(X_test)
+    acc1 = accuracy_score(y_test, y_pred1)
+    st.write(f"Acurácia: **{acc1:.2f}**")
+    st.text("Relatório:")
+    st.text(classification_report(y_test, y_pred1))
 
-# Previsão interativa
-st.subheader("Faça uma Previsão")
-idade = st.number_input("Idade", min_value=0)
-genero_input = st.selectbox("Gênero", ["Masculino", "Feminino"])
-genero = 0 if genero_input == "Masculino" else 1
-renda = st.number_input("Renda", min_value=0)
+    fig1, ax1 = plt.subplots()
+    plot_tree(model1, feature_names=X.columns, class_names=["A", "B", "C", "D"], filled=True)
+    st.pyplot(fig1)
 
-# Dicionário de categorias
-categorias = {0: "Categoria A", 1: "Categoria B", 2: "Categoria C", 3: "Categoria D"}
+# ===== Modelo 2 =====
+with col2:
+    st.subheader("Modelo 2")
+    model2 = DecisionTreeClassifier(max_depth=max_depth2, random_state=42)
+    model2.fit(X_train, y_train)
+    y_pred2 = model2.predict(X_test)
+    acc2 = accuracy_score(y_test, y_pred2)
+    st.write(f"Acurácia: **{acc2:.2f}**")
+    st.text("Relatório:")
+    st.text(classification_report(y_test, y_pred2))
 
-# Botão de previsão
-if st.button("Fazer previsão"):
-    prediction = model.predict([[idade, genero, renda]])
-    st.success(f"A categoria prevista é: {categorias[prediction[0]]}")
+    fig2, ax2 = plt.subplots()
+    plot_tree(model2, feature_names=X.columns, class_names=["A", "B", "C", "D"], filled=True)
+    st.pyplot(fig2)
+
+# Comparação direta
+st.markdown("---")
+st.subheader("Comparação Final")
+st.write(f"Acurácia Modelo 1: **{acc1:.2f}** | Profundidade: {max_depth1}")
+st.write(f"Acurácia Modelo 2: **{acc2:.2f}** | Profundidade: {max_depth2}")
+melhor = "Modelo 1" if acc1 > acc2 else "Modelo 2" if acc2 > acc1 else "Empate"
+st.success(f"Modelo com melhor desempenho: **{melhor}**")
