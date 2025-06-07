@@ -25,13 +25,13 @@ col1, col2 = st.columns(2)
 with col1:
     st.markdown(f"<h5 style='text-align:center'>{time1 or 'Time 1'}</h5>", unsafe_allow_html=True)
     for i, q in enumerate(quartos):
-        ponto = st.number_input("", key=f"t1_{i}", min_value=0, step=1, label_visibility="collapsed")
+        ponto = st.number_input("", key=f"t1_q{i}", min_value=0, step=1, label_visibility="collapsed")
         pontos_t1.append(ponto)
 
 with col2:
     st.markdown(f"<h5 style='text-align:center'>{time2 or 'Time 2'}</h5>", unsafe_allow_html=True)
     for i, q in enumerate(quartos):
-        ponto = st.number_input("", key=f"t2_{i}", min_value=0, step=1, label_visibility="collapsed")
+        ponto = st.number_input("", key=f"t2_q{i}", min_value=0, step=1, label_visibility="collapsed")
         pontos_t2.append(ponto)
 
 # Mostrar gráfico se todos os campos forem preenchidos
