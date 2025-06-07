@@ -1,57 +1,51 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, classification_report
 
-st.set_page_config(page_title="P-E", layout="centered")
+# Carregar os dados
+st.title("Árvore de Classificação")
+st.write("Exemplo de classificação de clientes")
 
-# Título com estilo futurista
-st.markdown("<h1 style='text-align: center; font-family: monospace; color: #00f5ff;'>P-E</h1>", unsafe_allow_html=True)
+# Criar um dataframe de exemplo
+data = {
+    "Idade": [25, 30, 35, 40, 45, 50, 55, 60],
+    "Gênero": [0, 1, 0, 1, 0, 1, 0, 1],
+    "Renda": [50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000],
+    "Categoria": [0, 0, 1, 1, 2, 2, 3, 3]
+}
 
-# Entradas dos nomes dos times
-col1, col2 = st.columns(2)
-with col1:
-    time1 = st.text_input("", placeholder="Time 1", label_visibility="collapsed")
-with col2:
-    time2 = st.text_input("", placeholder="Time 2", label_visibility="collapsed")
+df = pd.DataFrame(data)
 
-# Nomes dos quartos
-quartos = ["Q1", "Q2", "Q3", "Q4"]
-pontos_t1 = []
-pontos_t2 = []
+# Dividir os dados em conjuntos de treinamento e teste
+X = df[["Idade", "Gênero", "Renda"]]
+y = df["Categoria"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Inputs dos pontos com chaves únicas e botões pequenos
-col1, col2 = st.columns(2)
+# Treinar o modelo
+model = DecisionTreeClassifier(random_state=42)
+model.fit(X_train, y_train)
 
-with col1:
-    st.markdown(f"<h5 style='text-align:center'>{time1 or 'Time 1'}</h5>", unsafe_allow_html=True)
-    for i, q in enumerate(quartos):
-        ponto = st.number_input("", key=f"t1_q{i}", min_value=0, step=1, label_visibility="collapsed")
-        pontos_t1.append(ponto)
+# Fazer previsões
+y_pred = model.predict(X_test)
 
-with col2:
-    st.markdown(f"<h5 style='text-align:center'>{time2 or 'Time 2'}</h5>", unsafe_allow_html=True)
-    for i, q in enumerate(quartos):
-        ponto = st.number_input("", key=f"t2_q{i}", min_value=0, step=1, label_visibility="collapsed")
-        pontos_t2.append(ponto)
+# Avaliar o modelo
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred)
 
-# Mostrar gráfico se todos os campos forem preenchidos
-if all(isinstance(p, int) for p in pontos_t1 + pontos_t2):
-    df = pd.DataFrame({
-        "Quarto": quartos,
-        time1 or "Time 1": pontos_t1,
-        time2 or "Time 2": pontos_t2
-    })
+# Criar uma interface Streamlit
+st.write("Modelo treinado com precisão:", accuracy)
+st.write("Relatório de classificação:")
+st.write(report)
 
-    fig = go.Figure()
-    fig.add_trace(go.Bar(x=quartos, y=pontos_t1, name=time1 or "Time 1"))
-    fig.add_trace(go.Bar(x=quartos, y=pontos_t2, name=time2 or "Time 2"))
+# Criar um formulário para fazer previsões
+st.write("Faça uma previsão")
+idade = st.number_input("Idade", min_value=0)
+genero = st.selectbox("Gênero", [0, 1])
+renda = st.number_input("Renda", min_value=0)
 
-    fig.update_layout(
-        barmode='group',
-        title="Comparação por Quarto",
-        xaxis_title="Quarto",
-        yaxis_title="Pontos",
-        template="plotly_dark"
-    )
-
-    st.plotly_chart(fig)
+if st.button("Fazer previsão"):
+    # Fazer a previsão
+    prediction = model.predict([[idade, genero, renda]])
+    st.write("A categoria prevista é:", prediction[0])
